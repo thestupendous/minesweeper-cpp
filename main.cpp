@@ -4,69 +4,121 @@
 using namespace std;
 
 /* initializing control variables  */
-const unsigned maxLen=10, maxHeight=10, noOfMines=20;
+const unsigned maxLen=10, maxHeight=10, noOfMines=35;
 
 void printBoard(char a[maxLen][maxHeight]); 
+void findNumbers(char a[maxLen][maxHeight]); 
 int main() {
 
 	/* defining boards  */
 	char gameBoard[maxLen][maxHeight];
 	string displayBoard[maxLen][maxHeight];
 
+	/* initializing main board  */
+	for(unsigned i{0};i<maxLen;i++)
+		for(unsigned j{0};j<maxHeight;j++)
+			gameBoard[i][j] = '.';
+
+	/* initializing display board  */
+	for(unsigned i{0};i<maxLen;i++)
+		for(unsigned j{0};j<maxHeight;j++)
+			gameBoard[i][j] = '.';
+
 	/* initializing mines locations     */
 	unsigned minesList[noOfMines][2];
 	unsigned x{0},y{0};
 	try {
-		// 1. Create a random device for seeding (may use hardware entropy)
 		std::random_device rd;
-		// 2. Initialize Mersenne Twister engine with the seed
 		std::mt19937 gen(rd()); // High-quality PRNG
 														// 3. Define a uniform integer distribution in range [1, 100]
 		std::uniform_int_distribution<int> distX(0, maxLen-1);
 		std::uniform_int_distribution<int> distY(0, maxHeight-1);
-		  cout<< "log Before\n";
+		x = distX(gen);
+		y = distY(gen);
 		for (unsigned i{0};i<noOfMines;i++) {
-			minesList[i][0] = distX(gen);
-			minesList[i][1] = distY(gen);
+			while( gameBoard[x][y] != '.' ){
+				x = distX(gen);
+				y = distY(gen);
+			}
+			minesList[i][0] = x;
+			minesList[i][1] = y;
+			gameBoard[x][y] = '*';
 		}
-		  cout<< "log After\n";
 
 	} catch (const std::exception& e) {
 		std::cerr << "Random generation error: " << e.what() << "\n";
 		return 1;
 	}
 	// printing all mines locations
+	cout << "All mines coordinates -\n";
 	for(unsigned i{0};i<noOfMines;i++)
 		cout << "(" << minesList[i][0] << ',' << minesList[i][1] << ") ";
 	cout<<'\n';
 
 
-	/* initializing main board  */
-	for(unsigned i{0};i<maxLen;i++)
-		for(unsigned j{0};j<maxHeight;j++)
-			gameBoard[i][j] = '.';
+#if 0
 	// placing mines on main board
 	for(unsigned i{0};i<noOfMines;i++)
 		// putting Ø character for mines
 		gameBoard[minesList[i][0]][minesList[i][1]] = '*'; 
+#endif
 
-	// printing all mines locations on board
-	for(unsigned i{0};i<noOfMines;i++)
-		cout << "(" << gameBoard[minesList[i][0]][minesList[i][1]] << ") ";
-	cout<<'\n';
 
+	printBoard(gameBoard);
+	findNumbers(gameBoard);
 	printBoard(gameBoard);
 
 	return 0;
 }
+void findNumbers(char board[maxLen][maxHeight]) {
+	unsigned number{0};
+	for(int i{0};i<maxHeight;i++) {
+		for(int j{0};j<maxLen;j++) {
+			//			cout << "Log At: " << i <<","<<j<<"\n";
+			if(board[i][j]=='*') continue;
+			number=0;
+			// upar
+			if(i-1 >= 0) {
+				if(j-1 >=0) 
+					if(board[i-1][j-1]=='*') number++;
+				if(board[i-1][j]=='*') number++;
+				if(j+1 < maxLen)
+					if(board[i-1][j+1]=='*') number++;
+			}
+			//			cout<< "Log :UparDone\n";
+			// same height
+			{
+				if(j-1 >=0) 
+					if (board[i][j-1]=='*') number++;
+				if(j+1 < maxLen) 
+					if(board[i][j+1]=='*') number++;
+			}
+			//			cout<< "Log :SameDone\n";
+			// niche
+			if(i+1 < maxHeight) {
+				if(j-1 >=0 && board[i+1][j-1]=='*') number++;
+				if(board[i+1][j]=='*') number++;
+				if(j+1 < maxLen && board[i+1][j+1]=='*') number++;
+			}
+			//			cout<< "Log :NicheDone\n";
+			board[i][j] = '0'+number;
+		}
+	}
 
+}
 void printBoard(char board[maxLen][maxHeight]) {
-		cout << '\n';
-	
+	cout << '\n';
+	char symbol{','};
+	unsigned count{0};
+
 	for(unsigned i{0};i<maxLen;i++) {
-		for(unsigned j{0};j<maxHeight;j++)
-			cout << board[i][j];
+		for(unsigned j{0};j<maxHeight;j++) {
+			symbol = board[i][j];
+			if(symbol=='*') count++;
+			cout << symbol<< ' ' ;
+		}
 		cout << "|\n";
 	}
+	cout << "There are " << count << " mines.\n";
 }
 

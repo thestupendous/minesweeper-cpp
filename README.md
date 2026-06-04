@@ -13,3 +13,7 @@ classic minesweeper game, written cleanly in Mordern C++
 
 ### What's being used
 - Using mt19937() of <random> library for modern c++ approach to using random numbers.
+
+### To Add (later)
+- no global variables for size of board, number of mines 
+- vectors arrays instead of static matrices (for avoiding global use of size constants)
