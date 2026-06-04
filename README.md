@@ -1,7 +1,7 @@
 # Minesweeper
 classic minesweeper game, written cleanly in Mordern C++
 
-## documentation
+## Documentation
 ### Plan
 - maxLen, maxHeight for holding size of the board
 - noOfMines for holding count of totoal mines
