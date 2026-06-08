@@ -1,13 +1,16 @@
 #include<iostream>
 #include<random>
 #include<string>
+#include<queue>
+#include<utility>  // for pair
 using namespace std;
 
 /* initializing control variables  */
-const unsigned maxLen=10, maxHeight=10, noOfMines=20;
+const unsigned maxLen=4, maxHeight=4, noOfMines=1;
 
 void printBoard(char a[maxLen][maxHeight]); 
 void findNumbers(char a[maxLen][maxHeight]); 
+bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]);
 int main() {
 
 	/* defining boards  */
@@ -59,9 +62,115 @@ int main() {
 	printBoard(displayBoard);
 	printBoard(gameBoard);
 	/* finding adjescency numbers of mines neighbouring
-	 every cell, and updating board  */
+		 every cell, and updating board  */
 	findNumbers(gameBoard);
-	printBoard(gameBoard);
+	//printBoard(gameBoard);
+
+	/* play game */
+	bool finished{false},won{false};
+	unsigned movesCount{0};
+	unsigned playableMoves = maxHeight*maxLen - noOfMines;
+	while(!finished) {
+		// input coordinates
+		unsigned inpX, inpY;
+		do {
+			cout<<"Input your move(column no, row no) : ";
+			cin >> inpX >> inpY;
+		} while ( displayBoard[inpX][inpY]!='.' );
+		// (TODO: input validation)
+
+		// if stepped on mine
+		if(gameBoard[inpX][inpY]=='*') {
+			cout<< "GAME OVER!!!!\n";
+			cout << "moves: " << movesCount << '\n';
+			finished=true;
+			break;
+		}
+
+		// if stepped on a valley
+		// need to call BFS
+		if(gameBoard[inpX][inpY]=='0') {
+			std::queue<pair<unsigned,unsigned>> valleyQueue;
+			valleyQueue.push({inpX,inpY});
+			while( !valleyQueue.empty() ) {
+				// keep marking each non zero and non mine padosi on
+				// the display board, and keep pushing all '0's on to
+				// the valley queue.
+				int i(valleyQueue.front().first), j(valleyQueue.front().second);
+				// upar
+				if(i-1 >= 0) {
+					if(j-1 >=0) 
+						if(gameBoard[i-1][j-1]=='0') {
+							valleyQueue.push({i-1,j-1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+						}
+						else if(gameBoard[i-1][j-1]>'0') displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+					if(gameBoard[i-1][j]=='0') {
+						valleyQueue.push({i-1,j});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+					}
+					else if(gameBoard[i-1][j]>'0') displayBoard[i-1][j]=gameBoard[i-1][j];
+					if(j+1 < maxLen)
+						if(gameBoard[i-1][j+1]=='0') {
+							valleyQueue.push({i-1,j+1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+						}
+					else if(gameBoard[i-1][j+1]>'0') displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
+				}
+				// same height
+				{
+					if(j-1 >=0) 
+						if (gameBoard[i][j-1]=='0') {
+							valleyQueue.push({i,j-1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+						}
+					else if (gameBoard[i][j-1]>'0') displayBoard[i][j-1]=gameBoard[i][j-1];
+					if(j+1 < maxLen) 
+						if(gameBoard[i][j+1]=='0') {
+							valleyQueue.push({i,j+1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+						}
+					else if(gameBoard[i][j+1]>'0') displayBoard[i][j+1]=gameBoard[i][j+1];
+				}
+				// niche
+				if(i+1 < maxHeight) {
+					if(j-1 >=0 && gameBoard[i+1][j-1]=='0') {
+						valleyQueue.push({i+1,j-1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+					}
+					else if(j-1 >=0 && gameBoard[i+1][j-1]>'0') displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
+					if(gameBoard[i+1][j]=='0') {
+						valleyQueue.push({i+1,j});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+					}
+					else if(gameBoard[i+1][j]>'0') displayBoard[i-1][j]=gameBoard[i-1][j];
+					if(j+1 < maxLen && gameBoard[i+1][j+1]=='0') {
+						valleyQueue.push({i+1,j+1});
+							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+					}
+					else if(j+1 < maxLen && gameBoard[i+1][j+1]>'0') displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
+				}
+				valleyQueue.pop();
+			}
+		}
+
+		// if stepped on number (not zero)
+		if (gameBoard[inpX][inpY]!='*' && gameBoard[inpX][inpY]!='0') {
+			movesCount++;
+			displayBoard[inpX][inpY] = gameBoard[inpX][inpY];
+			printBoard(displayBoard);
+		}
+
+		// if the game is won
+		if (movesCount == playableMoves)
+		{
+			cout << "YOU HAVE WON THE GAME, CONGRATSSSSS!!!";
+			cout << "moves: " << movesCount << '\n';
+			finished=true;
+			won=true;
+			break;
+		}
+	}
 
 	return 0;
 }
@@ -112,3 +221,9 @@ void printBoard(char board[maxLen][maxHeight]) {
 	}
 }
 
+bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]) {
+	for(unsigned i{0};i<noOfMines;i++)
+		if (inpX==minesList[i][0] && inpY==minesList[i][1])
+			return true;
+	return false;
+}

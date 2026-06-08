@@ -10,6 +10,9 @@ classic minesweeper game, written cleanly in Mordern C++
   - placeMines() - randomly place mines on board (performing checks etc.)
   - playGame() - take progressively user inputs, perform game actions etc.
   - exploreValley() - keep revealing empty cells, where there are no mines on them/ around them.
+    A valley is an area where there are no surrounding mines. This is often the first area that gets explored whenever we usually start a minesweeper game.
+    Similarly there are many valleys that normally get formed in the game board, and discovering them gives another great enthusiasm in solving the game XD.
+
 
 ### What's being used
 - Using mt19937() of <random> library for modern c++ approach to using random numbers.
