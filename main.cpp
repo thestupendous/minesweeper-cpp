@@ -88,6 +88,7 @@ int main() {
 		}
 
 		// if stepped on a valley
+		// exploreValley() - explore the valley
 		// need to call BFS
 		if(gameBoard[inpX][inpY]=='0') {
 			std::queue<pair<unsigned,unsigned>> valleyQueue;
@@ -107,13 +108,13 @@ int main() {
 						else if(gameBoard[i-1][j-1]>'0') displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
 					if(gameBoard[i-1][j]=='0') {
 						valleyQueue.push({i-1,j});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i-1][j]=gameBoard[i-1][j];
 					}
 					else if(gameBoard[i-1][j]>'0') displayBoard[i-1][j]=gameBoard[i-1][j];
 					if(j+1 < maxLen)
 						if(gameBoard[i-1][j+1]=='0') {
 							valleyQueue.push({i-1,j+1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
 						}
 					else if(gameBoard[i-1][j+1]>'0') displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
 				}
@@ -122,13 +123,13 @@ int main() {
 					if(j-1 >=0) 
 						if (gameBoard[i][j-1]=='0') {
 							valleyQueue.push({i,j-1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i][j-1]=gameBoard[i][j-1];
 						}
 					else if (gameBoard[i][j-1]>'0') displayBoard[i][j-1]=gameBoard[i][j-1];
 					if(j+1 < maxLen) 
 						if(gameBoard[i][j+1]=='0') {
 							valleyQueue.push({i,j+1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i][j+1]=gameBoard[i][j+1];
 						}
 					else if(gameBoard[i][j+1]>'0') displayBoard[i][j+1]=gameBoard[i][j+1];
 				}
@@ -136,17 +137,17 @@ int main() {
 				if(i+1 < maxHeight) {
 					if(j-1 >=0 && gameBoard[i+1][j-1]=='0') {
 						valleyQueue.push({i+1,j-1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
 					}
 					else if(j-1 >=0 && gameBoard[i+1][j-1]>'0') displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
 					if(gameBoard[i+1][j]=='0') {
 						valleyQueue.push({i+1,j});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i+1][j]=gameBoard[i+1][j];
 					}
-					else if(gameBoard[i+1][j]>'0') displayBoard[i-1][j]=gameBoard[i-1][j];
+					else if(gameBoard[i+1][j]>'0') displayBoard[i+1][j]=gameBoard[i+1][j];
 					if(j+1 < maxLen && gameBoard[i+1][j+1]=='0') {
 						valleyQueue.push({i+1,j+1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
+							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
 					}
 					else if(j+1 < maxLen && gameBoard[i+1][j+1]>'0') displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
 				}
