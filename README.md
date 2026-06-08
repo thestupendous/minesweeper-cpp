@@ -24,6 +24,7 @@ classic minesweeper game, written cleanly in Mordern C++
 ### What's being used
 - Using mt19937() of <random> library for modern c++ approach to using random numbers.
 - Coder Ball Knowledge: using directly (gameBoard\[i-1]\[j]>'0') directly for checking a numbered cell which is not zero (when exploring valleys) and not checking if it's '\*' or '.' because \* and . already come before 0 in ASCII.
+- usage of string map for visited map - TODO - details
 
 ### To Add (later)
 - no global variables for size of board, number of mines 
