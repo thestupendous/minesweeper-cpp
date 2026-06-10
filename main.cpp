@@ -12,9 +12,8 @@ const unsigned maxLen=4, maxHeight=4, noOfMines=1;
 void printBoard(char a[maxLen][maxHeight]); 
 void findNumbers(char a[maxLen][maxHeight]); 
 bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]);
-inline string hashString(unsigned a, unsigned b) {
-	return std::to_string(a) + "," + std::to_string(b);
-}
+// hashString() macro for converting pair of int to string to act as key for visited map
+#define hashString(a, b)   std::to_string(a) + "," + std::to_string(b) 
 int main() {
 
 	/* defining boards  */
@@ -105,24 +104,27 @@ int main() {
 				int i(valleyQueue.front().first), j(valleyQueue.front().second);
 				// upar
 				if(i-1 >= 0) {
-					if(j-1 >=0) {
-						if(gameBoard[i-1][j-1]=='0' && visited[hashString(i-1,j-1)]!=1 ) {
-							visited[hashString(i-1,j-1)] = 1;
+					if(j-1 >=0 && visited[hashString(i-1,j-1)]!=1) {
+						if(gameBoard[i-1][j-1]=='0' ) {
 							valleyQueue.push({i-1,j-1});
 							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
 						}
 						else if(gameBoard[i-1][j-1]>'0') {
 							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
 						}
+							visited[hashString(i-1,j-1)] = 1;
 					}
-					if(gameBoard[i-1][j]=='0') {
-						valleyQueue.push({i-1,j});
-						displayBoard[i-1][j]=gameBoard[i-1][j];
+					if(visited[hashString(i-1,j)]!=1) {
+						if (gameBoard[i-1][j]=='0') {
+							valleyQueue.push({i-1,j});
+							displayBoard[i-1][j]=gameBoard[i-1][j];
+						}
+						else if(gameBoard[i-1][j]>'0' && visited[hashString(i-1,j)]!=1) {
+							displayBoard[i-1][j]=gameBoard[i-1][j];
+						}
+						visited[hashString(i-1,j)] = 1;
 					}
-					else {if(gameBoard[i-1][j]>'0') {
-						displayBoard[i-1][j]=gameBoard[i-1][j];
-					}}
-					if(j+1 < maxLen)
+					if(j+1 < maxLen && visited[hashString(i-1,j+1)]!=1) {
 						if(gameBoard[i-1][j+1]=='0') {
 							valleyQueue.push({i-1,j+1});
 							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
@@ -130,10 +132,12 @@ int main() {
 						else if(gameBoard[i-1][j+1]>'0'){
 							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
 						}
+						visited[hashString(i-1,j+1)] = 1;
+					}
 				}
 				// same height
 				{
-					if(j-1 >=0) 
+					if(j-1 >=0 && visited[hashString(i,j-1)]!=1) {
 						if (gameBoard[i][j-1]=='0') {
 							valleyQueue.push({i,j-1});
 							displayBoard[i][j-1]=gameBoard[i][j-1];
@@ -141,7 +145,9 @@ int main() {
 						else if (gameBoard[i][j-1]>'0'){
 							displayBoard[i][j-1]=gameBoard[i][j-1];
 						}
-					if(j+1 < maxLen) 
+						visited[hashString(i,j-1)] = 1;
+					}
+					if(j+1 < maxLen && visited[hashString(i,j+1)]!=1) {
 						if(gameBoard[i][j+1]=='0') {
 							valleyQueue.push({i,j+1});
 							displayBoard[i][j+1]=gameBoard[i][j+1];
@@ -149,31 +155,41 @@ int main() {
 						else if(gameBoard[i][j+1]>'0'){
 							displayBoard[i][j+1]=gameBoard[i][j+1];
 						}
+						visited[hashString(i,j+1)] = 1;
+					}
 				}
 				// niche
 				if(i+1 < maxHeight) {
-					if(j-1 >=0 && gameBoard[i+1][j-1]=='0') {
-						valleyQueue.push({i+1,j-1});
-						displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
+					if(j-1 >=0 && visited[hashString(i+1,j-1)]!=1) {
+						if (gameBoard[i+1][j-1]=='0') {
+							valleyQueue.push({i+1,j-1});
+							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
+						}
+						else if(j-1 >=0 && gameBoard[i+1][j-1]>'0'){
+							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
+						}
+						visited[hashString(i+1,j-1)] = 1;
 					}
-					else if(j-1 >=0 && gameBoard[i+1][j-1]>'0'){
-						displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
+					if (visited[hashString(i+1,j)]!=1) {
+						if(gameBoard[i+1][j]=='0') {
+							valleyQueue.push({i+1,j});
+							displayBoard[i+1][j]=gameBoard[i+1][j];
+						}
+						else if(gameBoard[i+1][j]>'0'){
+							displayBoard[i+1][j]=gameBoard[i+1][j];
+						}
+						visited[hashString(i+1,j)] = 1;
 					}
-					if(gameBoard[i+1][j]=='0') {
-						valleyQueue.push({i+1,j});
-						displayBoard[i+1][j]=gameBoard[i+1][j];
+					if(j+1 < maxLen && visited[hashString(i+1,j+1)]!=1) {
+						if (gameBoard[i+1][j+1]=='0') {
+							valleyQueue.push({i+1,j+1});
+							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
+						}
+						else if(j+1 < maxLen && gameBoard[i+1][j+1]>'0'){
+							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
+						}
+						visited[hashString(i+1,j+1)] = 1;
 					}
-					else if(gameBoard[i+1][j]>'0'){
-						displayBoard[i+1][j]=gameBoard[i+1][j];
-					}
-					if(j+1 < maxLen && gameBoard[i+1][j+1]=='0') {
-						valleyQueue.push({i+1,j+1});
-						displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
-					}
-					else if(j+1 < maxLen && gameBoard[i+1][j+1]>'0'){
-						displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
-					}
-				}
 				valleyQueue.pop();
 			}
 		}
