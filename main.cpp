@@ -49,11 +49,21 @@ int main() {
 
 
 	printBoard(displayBoard,true);
-	printBoard(gameBoard,true);
+
+	cout << " // below board is for debugging purposes only, \n";
+	cout << " // should not be used when actually playing the game\n";
+	printBoard(gameBoard,true); // printing unfinished gameBoard
+															// with just mines
+
 	/* finding adjescency numbers of mines neighbouring
 		 every cell, and updating board  */
 	findNumbers(gameBoard);
-	//printBoard(gameBoard);
+
+#if 0 // printing finalised gameBoard, after updating numbers
+	cout << " // below board is for debugging purposes only, \n";
+	cout << " // should not be used when actually playing the game\n";
+	printBoard(gameBoard,true);
+#endif
 
 	/* play game */
 	bool finished{false},won{false};
@@ -84,118 +94,9 @@ int main() {
 		// if stepped on a valley
 		// exploreValley() - explore the valley
 		// need to call BFS
-		if(gameBoard[inpX][inpY]  =='0') {
-			unordered_map<string,unsigned short> visited;
-			std::queue<pair<unsigned,unsigned>> valleyQueue;
-			valleyQueue.push({inpX,inpY});
-			localValleyCount=0;
-			while( !valleyQueue.empty() ) {
-				// keep marking each non zero and non mine padosi on
-				// the display board, and keep pushing all '0's on to
-				// the valley queue.
-				int i(valleyQueue.front().first), j(valleyQueue.front().second);
-				// upar
-				if(i-1 >= 0) {
-					if(j-1 >=0 && visited[hashString(i-1,j-1)]!=1) {
-						if(gameBoard[i-1][j-1]=='0' ) {
-							valleyQueue.push({i-1,j-1});
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
-						}
-						else if(gameBoard[i-1][j-1]>'0') {
-							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
-						}
-						visited[hashString(i-1,j-1)] = 1;
-						localValleyCount++;
-					}
-					if(visited[hashString(i-1,j)]!=1) {
-						if (gameBoard[i-1][j]=='0') {
-							valleyQueue.push({i-1,j});
-							displayBoard[i-1][j]=gameBoard[i-1][j];
-						}
-						else if(gameBoard[i-1][j]>'0' && visited[hashString(i-1,j)]!=1) {
-							displayBoard[i-1][j]=gameBoard[i-1][j];
-						}
-						visited[hashString(i-1,j)] = 1;
-						localValleyCount++;
-					}
-					if(j+1 < maxLen && visited[hashString(i-1,j+1)]!=1) {
-						if(gameBoard[i-1][j+1]=='0') {
-							valleyQueue.push({i-1,j+1});
-							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
-						}
-						else if(gameBoard[i-1][j+1]>'0'){
-							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
-						}
-						visited[hashString(i-1,j+1)] = 1;
-						localValleyCount++;
-					}
-				}
-				// same height
-				{
-					if(j-1 >=0 && visited[hashString(i,j-1)]!=1) {
-						if (gameBoard[i][j-1]=='0') {
-							valleyQueue.push({i,j-1});
-							displayBoard[i][j-1]=gameBoard[i][j-1];
-						}
-						else if (gameBoard[i][j-1]>'0'){
-							displayBoard[i][j-1]=gameBoard[i][j-1];
-						}
-						visited[hashString(i,j-1)] = 1;
-						localValleyCount++;
-					}
-					if(j+1 < maxLen && visited[hashString(i,j+1)]!=1) {
-						if(gameBoard[i][j+1]=='0') {
-							valleyQueue.push({i,j+1});
-							displayBoard[i][j+1]=gameBoard[i][j+1];
-						}
-						else if(gameBoard[i][j+1]>'0'){
-							displayBoard[i][j+1]=gameBoard[i][j+1];
-						}
-						visited[hashString(i,j+1)] = 1;
-						localValleyCount++;
-					}
-				}
-				// niche
-				if(i+1 < maxHeight) {
-					if(j-1 >=0 && visited[hashString(i+1,j-1)]!=1) {
-						if (gameBoard[i+1][j-1]=='0') {
-							valleyQueue.push({i+1,j-1});
-							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
-						}
-						else if(j-1 >=0 && gameBoard[i+1][j-1]>'0'){
-							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
-						}
-						visited[hashString(i+1,j-1)] = 1;
-						localValleyCount++;
-					}
-					if (visited[hashString(i+1,j)]!=1) {
-						if(gameBoard[i+1][j]=='0') {
-							valleyQueue.push({i+1,j});
-							displayBoard[i+1][j]=gameBoard[i+1][j];
-						}
-						else if(gameBoard[i+1][j]>'0'){
-							displayBoard[i+1][j]=gameBoard[i+1][j];
-						}
-						visited[hashString(i+1,j)] = 1;
-						localValleyCount++;
-					}
-					if(j+1 < maxLen && visited[hashString(i+1,j+1)]!=1) {
-						if (gameBoard[i+1][j+1]=='0') {
-							valleyQueue.push({i+1,j+1});
-							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
-						}
-						else if(j+1 < maxLen && gameBoard[i+1][j+1]>'0'){
-							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
-						}
-						visited[hashString(i+1,j+1)] = 1;
-						localValleyCount++;
-					}
-				}
-				if (displayBoard[i][j] == '.') displayBoard[i][j] = gameBoard[i][j];
-				valleyQueue.pop();
-			}
-			valleyCount += localValleyCount;
-		}
+		exploreValley(gameBoard, displayBoard, inpX, inpY,
+				valleyCount, localValleyCount);
+
 
 		// if stepped on number (not zero)
 		if (gameBoard[inpX][inpY]!='*' && gameBoard[inpX][inpY]!='0') {
@@ -221,4 +122,3 @@ int main() {
 
 	return 0;
 }
-
