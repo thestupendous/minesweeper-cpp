@@ -9,7 +9,7 @@ using namespace std;
 /* initializing control variables  */
 const unsigned maxLen=4, maxHeight=4, noOfMines=2;
 
-void printBoard(char a[maxLen][maxHeight]); 
+void printBoard(char a[maxLen][maxHeight],bool first=false); 
 void findNumbers(char a[maxLen][maxHeight]); 
 bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]);
 // hashString() macro for converting pair of int to string to act as key for visited map
@@ -62,10 +62,10 @@ int main() {
 	cout<<'\n';
 
 
-	printBoard(displayBoard);
-	printBoard(gameBoard);
+	printBoard(displayBoard,true);
+	printBoard(gameBoard,true);
 	/* finding adjescency numbers of mines neighbouring
-	   every cell, and updating board  */
+		 every cell, and updating board  */
 	findNumbers(gameBoard);
 	//printBoard(gameBoard);
 
@@ -119,6 +119,7 @@ int main() {
 							displayBoard[i-1][j-1]=gameBoard[i-1][j-1];
 						}
 						visited[hashString(i-1,j-1)] = 1;
+						localValleyCount++;
 					}
 					if(visited[hashString(i-1,j)]!=1) {
 						if (gameBoard[i-1][j]=='0') {
@@ -129,6 +130,7 @@ int main() {
 							displayBoard[i-1][j]=gameBoard[i-1][j];
 						}
 						visited[hashString(i-1,j)] = 1;
+						localValleyCount++;
 					}
 					if(j+1 < maxLen && visited[hashString(i-1,j+1)]!=1) {
 						if(gameBoard[i-1][j+1]=='0') {
@@ -139,6 +141,7 @@ int main() {
 							displayBoard[i-1][j+1]=gameBoard[i-1][j+1];
 						}
 						visited[hashString(i-1,j+1)] = 1;
+						localValleyCount++;
 					}
 				}
 				// same height
@@ -152,6 +155,7 @@ int main() {
 							displayBoard[i][j-1]=gameBoard[i][j-1];
 						}
 						visited[hashString(i,j-1)] = 1;
+						localValleyCount++;
 					}
 					if(j+1 < maxLen && visited[hashString(i,j+1)]!=1) {
 						if(gameBoard[i][j+1]=='0') {
@@ -162,6 +166,7 @@ int main() {
 							displayBoard[i][j+1]=gameBoard[i][j+1];
 						}
 						visited[hashString(i,j+1)] = 1;
+						localValleyCount++;
 					}
 				}
 				// niche
@@ -175,6 +180,7 @@ int main() {
 							displayBoard[i+1][j-1]=gameBoard[i+1][j-1];
 						}
 						visited[hashString(i+1,j-1)] = 1;
+						localValleyCount++;
 					}
 					if (visited[hashString(i+1,j)]!=1) {
 						if(gameBoard[i+1][j]=='0') {
@@ -185,6 +191,7 @@ int main() {
 							displayBoard[i+1][j]=gameBoard[i+1][j];
 						}
 						visited[hashString(i+1,j)] = 1;
+						localValleyCount++;
 					}
 					if(j+1 < maxLen && visited[hashString(i+1,j+1)]!=1) {
 						if (gameBoard[i+1][j+1]=='0') {
@@ -195,89 +202,97 @@ int main() {
 							displayBoard[i+1][j+1]=gameBoard[i+1][j+1];
 						}
 						visited[hashString(i+1,j+1)] = 1;
+						localValleyCount++;
 					}
 				}
 				if (displayBoard[i][j] == '.') displayBoard[i][j] = gameBoard[i][j];
 				valleyQueue.pop();
-				localValleyCount++;
 			}
 			valleyCount += localValleyCount;
 		}
 
-			// if stepped on number (not zero)
-			if (gameBoard[inpX][inpY]!='*' && gameBoard[inpX][inpY]!='0') {
-				movesCount++;
-				displayBoard[inpX][inpY] = gameBoard[inpX][inpY];
-				// cout << "LOG: aya tha\n";
-			}
+		// if stepped on number (not zero)
+		if (gameBoard[inpX][inpY]!='*' && gameBoard[inpX][inpY]!='0') {
+			movesCount++;
+			displayBoard[inpX][inpY] = gameBoard[inpX][inpY];
+			// cout << "LOG: aya tha\n";
+		}
 
-			// if the game is won
-			if (movesCount+valleyCount == playableMoves)
+		// if the game is won
+		if (movesCount+valleyCount == playableMoves)
+		{
+			cout << "Log 2: Moves+Vc " << movesCount+valleyCount << '\n';
+			cout << "YOU HAVE WON THE GAME, CONGRATSSSSS!!!";
+			cout << "moves: " << movesCount << '\n';
+			finished=true;
+			won=true;
+			break;
+		} else {
+			cout << "Log 2: Moves+Vc " << movesCount+valleyCount << '\n';
+		}
+		printBoard(displayBoard);
+	}
+
+	return 0;
+}
+void findNumbers(char board[maxLen][maxHeight]) {
+	unsigned number{0};
+	for(int i{0};i<maxHeight;i++) {
+		for(int j{0};j<maxLen;j++) {
+			if(board[i][j]=='*') continue;
+			number=0;
+			// upar
+			if(i-1 >= 0) {
+				if(j-1 >=0) 
+					if(board[i-1][j-1]=='*') number++;
+				if(board[i-1][j]=='*') number++;
+				if(j+1 < maxLen)
+					if(board[i-1][j+1]=='*') number++;
+			}
+			// same height
 			{
-				cout << "Log 2: Moves+Vc " << movesCount+valleyCount << '\n';
-				cout << "YOU HAVE WON THE GAME, CONGRATSSSSS!!!";
-				cout << "moves: " << movesCount << '\n';
-				finished=true;
-				won=true;
-				break;
-			} else {
-				cout << "Log 2: Moves+Vc " << movesCount+valleyCount << '\n';
+				if(j-1 >=0) 
+					if (board[i][j-1]=='*') number++;
+				if(j+1 < maxLen) 
+					if(board[i][j+1]=='*') number++;
 			}
-			printBoard(displayBoard);
-		}
-
-		return 0;
-	}
-	void findNumbers(char board[maxLen][maxHeight]) {
-		unsigned number{0};
-		for(int i{0};i<maxHeight;i++) {
-			for(int j{0};j<maxLen;j++) {
-				if(board[i][j]=='*') continue;
-				number=0;
-				// upar
-				if(i-1 >= 0) {
-					if(j-1 >=0) 
-						if(board[i-1][j-1]=='*') number++;
-					if(board[i-1][j]=='*') number++;
-					if(j+1 < maxLen)
-						if(board[i-1][j+1]=='*') number++;
-				}
-				// same height
-				{
-					if(j-1 >=0) 
-						if (board[i][j-1]=='*') number++;
-					if(j+1 < maxLen) 
-						if(board[i][j+1]=='*') number++;
-				}
-				// niche
-				if(i+1 < maxHeight) {
-					if(j-1 >=0 && board[i+1][j-1]=='*') number++;
-					if(board[i+1][j]=='*') number++;
-					if(j+1 < maxLen && board[i+1][j+1]=='*') number++;
-				}
-				board[i][j] = '0'+number;
+			// niche
+			if(i+1 < maxHeight) {
+				if(j-1 >=0 && board[i+1][j-1]=='*') number++;
+				if(board[i+1][j]=='*') number++;
+				if(j+1 < maxLen && board[i+1][j+1]=='*') number++;
 			}
+			board[i][j] = '0'+number;
 		}
-
 	}
-	void printBoard(char board[maxLen][maxHeight]) {
-		cout << '\n';
-		char symbol{','};
-		unsigned count{0};
 
+}
+void printBoard(char board[maxLen][maxHeight],bool first) {
+	cout << '\n';
+	if (!first) {
 		for(unsigned i{0};i<maxLen;i++) {
 			for(unsigned j{0};j<maxHeight;j++) {
-				symbol = board[i][j];
-				if(symbol=='*') count++;
-				cout << symbol<< ' ' ;
+				if (board[i][j]=='0') 
+					cout << ' ' << ' ';
+				else
+				 cout << board[i][j] << ' ' ;
 			}
 			cout << "|\n";
 		}
+		return;
 	}
 
-	bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]) {
-		for(unsigned i{0};i<noOfMines;i++)
-			if (inpX==minesList[i][0] && inpY==minesList[i][1])
-				return true;
-		return false;
+	for(unsigned i{0};i<maxLen;i++) {
+		for(unsigned j{0};j<maxHeight;j++) {
+			cout << board[i][j] << ' ' ;
+		}
+		cout << "|\n";
 	}
+}
+
+bool onMine(unsigned inpX,unsigned inpY,const unsigned minesList[][2]) {
+	for(unsigned i{0};i<noOfMines;i++)
+		if (inpX==minesList[i][0] && inpY==minesList[i][1])
+			return true;
+	return false;
+}
