@@ -10,7 +10,7 @@
 using namespace std;
 
 /* initializing game control variables  */
-const unsigned maxLen=4, maxHeight=4, noOfMines=2;
+const unsigned maxLen=14, maxHeight=4, noOfMines=2;
 
 void printBoard(char a[maxLen][maxHeight],bool first=false); 
 void findNumbers(char a[maxLen][maxHeight]); 

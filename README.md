@@ -31,3 +31,6 @@ classic minesweeper game, written cleanly in Mordern C++
 ### To Add (later)
 - no global variables for size of board, number of mines 
 - vectors arrays instead of static matrices (for avoiding global use of size constants)
+
+## Known Issues
+- the row and column fields `maxLen` and `maxHeight` are flipped. correcting them would require complete code gothrough and modification
